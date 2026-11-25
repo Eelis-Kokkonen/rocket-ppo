@@ -22,8 +22,6 @@ class Model(nn.Module):
         self.input_proj = nn.Linear(input_dim, dim)
 
         self.layers = (Layer(dim, dim), for _ in range(num_layers))
-
-        self.
       
         self.output_proj = nn.Linear(dim, action_space)
 

@@ -1,0 +1,52 @@
+from typing import List, Any, Tuple, Dict
+import numpy as np
+from rlgym.api import ActionParser, AgentID
+from rlgym.rocket_league import GameState
+
+
+class ActionParser(ActionParser[AgentID, np.array, np.array, GameState, Tuple[str, int]]):
+    def __init__(self):
+        super().__init__()
+
+        self._lookup_table = self._make_lookup_table().astype(np.float32)
+
+    def get_action_space(self, agent: AgentID) -> Tuple[str, int]:
+        return "discrete", len(self._lookup_table)
+
+    def reset(self, agent: List[AgentID], initial_state: GameState, shared_info: Dict[str, int]) -> None:
+        pass
+
+    def parse_actions(self, actions, Dict[AgentID, np.array], state: GameState, shared_info: ):
+        parsed_actions = {}
+
+        for agent, action in actions.items():
+            parsed_actions[agent] = self.lookup_table[action.item()]
+
+        return parsed_actions
+
+    @staticmethod
+    def _make_lookup_table():
+        actions = []
+        # Ground
+        for throttle in (-1, 0, 1):
+            for steer in (-1, 0, 1):
+                for boost in (0, 1):
+                    for handbrake in (0, 1):
+                        if boost == 1 and throttle != 1:
+                            continue
+                        actions.append([throttle or boost, steer, 0, steer, 0, 0, boost, handbrake])
+        # Aerial
+        for pitch in (-1, 0, 1):
+            for yaw in (-1, 0, 1):
+                for roll in (-1, 0, 1):
+                    for jump in (0, 1):
+                        for boost in (0, 1):
+                            if jump == 1 and yaw != 0:  # Only need roll for sideflip
+                                continue
+                            if pitch == roll == jump == 0:  # Duplicate with ground
+                                continue
+                            # Enable handbrake for potential wavedashes
+                            handbrake = jump == 1 and (pitch != 0 or yaw != 0 or roll != 0)
+                            actions.append([boost, yaw, pitch, yaw, roll, jump, boost, handbrake])
+
+        return np.array(actions)

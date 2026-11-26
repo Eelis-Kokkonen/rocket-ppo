@@ -35,5 +35,5 @@ def build_env():
 
 
 if __name__ = "__main__":
-    learner = Learner()
+    learner = Learner(build_env)
     learner.learn()

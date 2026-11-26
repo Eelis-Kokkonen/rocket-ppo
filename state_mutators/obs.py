@@ -23,6 +23,8 @@ OPPONENT_SLICE = [
     slice(189, 225)
 ]
 
+BOOST_SLICE = slice(259)
+
 POS = slice(0, 3)
 VEL = slice(3, 6)
 ANG_VEL = slice(6, 9)
@@ -52,17 +54,18 @@ BALL_REL_CAR_VEL  = slice(18, 21)
 
 
 class Obs(ObsBuilder[AgentID, np.array, GameState, Tuple[str, int]]):
-    def __init__(self, num_players = 4, num_boosts = 34):
+    def __init__(self, num_players: int = 6, num_boosts: int = 34, add_boost: bool = True, shuffle: bool = True):
         super().__init__()
 
+        self.num_players = num_players
+        self.num_boosts = num_boosts
+        self.add_boost = add_boost
+        self.shuffle = shuffle
 
         self.last_state
 
-
-
-
     def get_obs_space(self, agent: AgentID) -> Tuple[str, int]:
-        return "real", 100
+        return "real", 259
 
     def reset(self, agents: AgentID, initial_state: GameState, shared_info: Dict[str, Any]) -> None:
         self.last_state = initial_state

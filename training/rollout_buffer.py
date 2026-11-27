@@ -5,8 +5,7 @@ class RolloutBuffer():
     def __init__(self, config: RLConfig):
         self.rollout_len = config.rollout_len
 
-        self.dim = 
-        
+        self.dim = config.n_envs * config.n_agents
 
         self.reset()
 
@@ -26,7 +25,6 @@ class RolloutBuffer():
       
     def store(self, obs, action, log_prob, value, reward, done, returns):
         if self.ptr >= self.rollout_len: return
-
 
         idx = self.ptr
 
